@@ -1,8 +1,10 @@
 "use client"
 
-import ArchivedApplicants from "./components/ArchivedApplicants"
-import Applicants from "./components/Applicants"
-import ApplicantForm from "./components/Form/Applicant"
+import dynamic from "next/dynamic"
+
+const NoSSRApplicants = dynamic(() => import('./components/Applicants'), {ssr: false}) 
+const NoSSRArchived = dynamic(() => import('./components/ArchivedApplicants'), {ssr: false}) 
+const NoSSRApplicationForm = dynamic(() => import('./components/Form/Applicant'), {ssr: false}) 
 
 export default function Home() {
   return (
@@ -11,9 +13,9 @@ export default function Home() {
         Applicant details
       </span>
       <div className="flex flex-col md:flex-row justify-between gap-2">
-        <Applicants />
-        <ArchivedApplicants />
-        <ApplicantForm />
+        <NoSSRApplicants />
+        <NoSSRArchived />
+        <NoSSRApplicationForm />
       </div>
     </div>
   );

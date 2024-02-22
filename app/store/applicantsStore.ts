@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware';
 
 export type ApplicantFormType = {
   firstName: string;
@@ -71,30 +72,40 @@ const onUpdateApplicant = (state: ApplicantList, updatedDetails: ApplicantType) 
   })
 }
 
-export const useApplicantStore = create<ApplicantsStoreType>((set) => ({
-  applicants: initialList,
-  updateApplicant: null,
-  setUpdateApplicant: (formData: ApplicantType | null) => set(() => ({ updateApplicant: formData })),
-  add: (formData: ApplicantFormType) => set((state) => ({
-    applicants: onAddApplicant(state.applicants, formData)
-  })),
-  update: (formData: ApplicantType) => set((state) => ({
-    applicants: onUpdateApplicant(state.applicants, formData)
-  })),
-  remove: (id: string | number,
-    primary: boolean,) => primary ? null : set((state) => ({ applicants: onRemoveRetriveApplicant(id, state.applicants, "remove") })),
-  retrive: (id: string | number,
-    primary: boolean,) => primary ? null : set((state) => ({ applicants: onRemoveRetriveApplicant(id, state.applicants) })),
-  setPrimary: (id: string | number) => set((state) => ({
-    applicants: state.applicants.map((applicant) => ({
-      ...applicant,
-      primary: id === applicant.id,
-    }))
-  })),
-  removePrimary: (id: string | number) => set((state) => ({
-    applicants: state.applicants.map((applicant) => ({
-      ...applicant,
-      primary: id === applicant.id ? false : applicant.primary,
-    }))
-  }))
-}));
+export const useApplicantStore = create<ApplicantsStoreType>()(
+  persist(
+    set => {
+      return {
+        applicants: initialList,
+        updateApplicant: null,
+        setUpdateApplicant: (formData: ApplicantType | null) => set(() => ({ updateApplicant: formData })),
+        add: (formData: ApplicantFormType) => set((state) => ({
+          applicants: onAddApplicant(state.applicants, formData)
+        })),
+        update: (formData: ApplicantType) => set((state) => ({
+          applicants: onUpdateApplicant(state.applicants, formData)
+        })),
+        remove: (id: string | number,
+          primary: boolean,) => primary ? null : set((state) => ({ applicants: onRemoveRetriveApplicant(id, state.applicants, "remove") })),
+        retrive: (id: string | number,
+          primary: boolean,) => primary ? null : set((state) => ({ applicants: onRemoveRetriveApplicant(id, state.applicants) })),
+        setPrimary: (id: string | number) => set((state) => ({
+          applicants: state.applicants.map((applicant) => ({
+            ...applicant,
+            primary: id === applicant.id,
+          }))
+        })),
+        removePrimary: (id: string | number) => set((state) => ({
+          applicants: state.applicants.map((applicant) => ({
+            ...applicant,
+            primary: id === applicant.id ? false : applicant.primary,
+          }))
+        }))
+      }
+    },
+    {
+      name: 'applicants',
+      getStorage: () => sessionStorage
+    }
+  )
+)
